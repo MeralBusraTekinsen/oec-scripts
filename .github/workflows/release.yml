@@ -130,6 +130,8 @@ jobs:
       run: cp -R release/oec-builder/oec-rpm/. .release/oec-rpm
     - name: Copy Integration Files
       run: cp -R ${{ github.event.inputs.integration }}/. .release/oec-rpm/oec-scripts
+    - name: Copy Log File
+      run: cp -R release/log/log.go ${{ github.event.inputs.integration }}/opsgenie-${{ env.INTEGRATION_NAME }}/.
     - name: Check Incoming part exists
       id: check_files
       uses: andstor/file-existence-action@v1
@@ -142,7 +144,6 @@ jobs:
         INTEGRATION_PATH=oec-rpm/oec-scripts/opsgenie-${INTEGRATION_NAME}
         echo ${INTEGRATION_PATH}
         cd ${INTEGRATION_PATH} && \
-        cp release/log/log.go . && \
         GOOS=linux GOARCH=amd64 go build -o send2opsgenie send2opsgenie.go log.go
     - name: Create RPM Package 
       working-directory: .release/oec-rpm
