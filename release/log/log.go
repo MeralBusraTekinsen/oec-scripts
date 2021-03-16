@@ -8,10 +8,10 @@ import (
 
 const (
 	LogNone = iota
+	LogDebug
 	LogInfo
 	LogWarning
 	LogError
-	LogDebug
 )
 
 var levelPrefix = map[int]string{LogInfo: "INFO ", LogDebug: "DEBUG ", LogWarning: "WARNING ", LogError: "ERROR "}
