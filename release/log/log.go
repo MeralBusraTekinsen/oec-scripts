@@ -1,7 +1,7 @@
 package main
 
 import (
-	"errors"
+	"fmt"
 	"log"
 	"os"
 )
@@ -30,13 +30,34 @@ func NewFileLogger() *OpsgenieFileLogger {
 	}
 }
 
-func (opsgenieFileLogger *OpsgenieFileLogger) Log(level int, msg string) error {
-	if opsgenieFileLogger.Logger == nil {
-		return errors.New("FileLogger is not initialized correctly")
+func (opsgenieFileLogger *OpsgenieFileLogger) setOutput(file *os.File) {
+	opsgenieFileLogger.Logger = log.New(file, "", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lmsgprefix)
+	opsgenieFileLogger.LogFile = file
+}
+
+func (opsgenieFileLogger *OpsgenieFileLogger) log(level int, msg string) {
+	if opsgenieFileLogger.Logger != nil {
+		if level >= opsgenieFileLogger.LogLevel {
+			opsgenieFileLogger.Logger.SetPrefix(levelPrefix[level])
+			opsgenieFileLogger.Logger.Println(msg) // maybe you want to include the loglevel here, modify it as you want
+		}
+	} else {
+		fmt.Println("FileLogger is not initialized correctly")
 	}
-	if level >= opsgenieFileLogger.LogLevel {
-		opsgenieFileLogger.Logger.SetPrefix(levelPrefix[level])
-		opsgenieFileLogger.Logger.Println(msg)
-	}
-	return nil
+}
+
+func (opsgenieFileLogger *OpsgenieFileLogger) Error(msg string) {
+	opsgenieFileLogger.log(LogError, msg)
+}
+
+func (opsgenieFileLogger *OpsgenieFileLogger) Info(msg string) {
+	opsgenieFileLogger.log(LogInfo, msg)
+}
+
+func (opsgenieFileLogger *OpsgenieFileLogger) Warning(msg string) {
+	opsgenieFileLogger.log(LogWarning, msg)
+}
+
+func (opsgenieFileLogger *OpsgenieFileLogger) Debug(msg string) {
+	opsgenieFileLogger.log(LogDebug, msg)
 }
