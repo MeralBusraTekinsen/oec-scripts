@@ -233,7 +233,7 @@ func mainReal() {
 
 func main(){
 	configParameters = map[string]string{"apiKey": "",
-		"bmcFootPrints2opsgenie.logger": "debug"}
+		"bmcFootPrints2opsgenie.logger": "warning"}
 	parameters = make(map[string]string)
 
 	logger = configureLogger()
