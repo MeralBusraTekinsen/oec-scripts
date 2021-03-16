@@ -1,5 +1,3 @@
-package main
-
 import (
 	"bufio"
 	"bytes"
@@ -10,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net"
 	"net/http"
 	"net/url"
@@ -39,7 +38,7 @@ var bmcFootPrintsWebServiceURL string
 
 var configPath string
 var configPath2 string
-var levels = map[string]int{"info": logUtil.LogInfo, "debug": logUtil.LogDebug, "warning": logUtil.LogWarning, "error": logUtil.LogError}
+var levels = map[string]int{"info": LogInfo, "debug": LogDebug, "warning": LogWarning, "error": LogError}
 var logger *OpsgenieFileLogger
 var ogPrefix string = "[OpsGenie] "
 
@@ -141,7 +140,7 @@ func main() {
 
 	if parameters["incidentNumber"] == "" && parameters["problemNumber"] == "" {
 		if logger != nil {
-			logger.Log(LogError,"Stopping, BMC FootPrints v11 incidentNumber and problemNumber params both have no value, " +
+			logger.Log(LogError, "Stopping, BMC FootPrints v11 incidentNumber and problemNumber params both have no value, "+
 				"please make sure your BMC FootPrints v11 Escalations has the correct external action defined.")
 		}
 
@@ -150,7 +149,7 @@ func main() {
 
 	if parameters["workspaceId"] == "" {
 		if logger != nil {
-			logger.Log(LogError,"Stopping, BMC FootPrints v11 workspaceId parameter has no value, " +
+			logger.Log(LogError, "Stopping, BMC FootPrints v11 workspaceId parameter has no value, "+
 				"please make sure your BMC FootPrints v11 Escalations has the correct external action defined.")
 		}
 
@@ -187,14 +186,14 @@ func main() {
 		parameters["closureCode"] = issueDetails.ClosureCode
 	} else if len(issueDetails.AllDescriptions.Items) > 1 {
 		if strings.HasPrefix(issueDetails.Description, ogPrefix) {
-			logger.Log(LogDebug,"Skipping, Incident or Problem was created from OpsGenie.")
+			logger.Log(LogDebug, "Skipping, Incident or Problem was created from OpsGenie.")
 			return
 		}
 
 		parameters["action"] = "AddNote"
 	} else {
 		if strings.HasPrefix(issueDetails.Description, ogPrefix) {
-			logger.Log(LogDebug,"Skipping, Incident or Problem was created from OpsGenie.")
+			logger.Log(LogDebug, "Skipping, Incident or Problem was created from OpsGenie.")
 			return
 		}
 
@@ -232,13 +231,13 @@ func main() {
 
 func printConfigToLog() {
 	if logger != nil {
-		if logger.logLevel == LogDebug {
-			logger.Log(LogDebug,"Config:")
+		if logger.LogLevel == LogDebug {
+			logger.Log(LogDebug, "Config:")
 			for k, v := range configParameters {
 				if strings.Contains(k, "password") {
-					logger.Log(LogDebug,k + "=*******")
+					logger.Log(LogDebug, k+"=*******")
 				} else {
-					logger.Log(LogDebug,k + "=" + v)
+					logger.Log(LogDebug, k+"="+v)
 				}
 			}
 		}
@@ -265,7 +264,7 @@ func readConfigFile(file io.Reader) {
 	}
 }
 
-func readConfigurationFileFromOECConfig(filepath string) (error) {
+func readConfigurationFileFromOECConfig(filepath string) error {
 
 	jsonFile, err := os.Open(filepath)
 
@@ -300,7 +299,7 @@ type Configuration struct {
 	BaseUrl string `json:"baseUrl"`
 }
 
-func configureLogger() *OpsgenieFileLogger  {
+func configureLogger() *OpsgenieFileLogger {
 	level := configParameters["bmcFootPrints2opsgenie.logger"]
 	var logFilePath = parameters["logPath"]
 
@@ -312,7 +311,7 @@ func configureLogger() *OpsgenieFileLogger  {
 		}
 	}
 
-	var tmpLogger NewFileLogger()
+	var tmpLogger = NewFileLogger()
 
 	file, err := os.OpenFile(logFilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 
@@ -363,7 +362,7 @@ func getHttpClient(timeout int) *http.Client {
 		}
 
 		if logger != nil {
-			logger.Log(LogDebug,"Formed Proxy url: ", u)
+			logger.Log(LogDebug, "Formed Proxy url: "+u.String())
 		}
 		proxy = http.ProxyURL(u)
 	}
@@ -375,7 +374,7 @@ func getHttpClient(timeout int) *http.Client {
 				conn, err := net.DialTimeout(netw, addr, time.Second*time.Duration(seconds))
 				if err != nil {
 					if logger != nil {
-						logger.Log(LogError,"Error occurred while connecting: ", err)
+						logger.Log(LogError, "Error occurred while connecting: "+err.Error())
 					}
 					return nil, err
 				}
@@ -401,9 +400,9 @@ func postRequest(url string, data []byte, headersMap map[string]string) string {
 		headersJSON, _ := json.Marshal(headersMap)
 
 		if logger != nil {
-			logger.Log(LogDebug,logPrefix + "Trying to make a POST request to the target URL: " +
-				url + " with timeout: " + strconv.Itoa((TOTAL_TIME/12)*2*i) + ". Request Body: " +
-				body.String() + ". Request Headers: " + string(headersJSON[:]))
+			logger.Log(LogDebug, logPrefix+"Trying to make a POST request to the target URL: "+
+				url+" with timeout: "+strconv.Itoa((TOTAL_TIME/12)*2*i)+". Request Body: "+
+				body.String()+". Request Headers: "+string(headersJSON[:]))
 		}
 
 		client := getHttpClient(i)
@@ -416,31 +415,31 @@ func postRequest(url string, data []byte, headersMap map[string]string) string {
 			if err == nil {
 				if resp.StatusCode == 200 {
 					if logger != nil {
-						logger.Log(LogDebug,logPrefix + "Response code: " + strconv.Itoa(resp.StatusCode))
-						logger.Log(LogDebug,logPrefix + "Response: " + string(body[:]))
-						logger.Log(LogInfo,logPrefix + "Data posted to " + url + " successfully.")
+						logger.Log(LogDebug, logPrefix+"Response code: "+strconv.Itoa(resp.StatusCode))
+						logger.Log(LogDebug, logPrefix+"Response: "+string(body[:]))
+						logger.Log(LogInfo, logPrefix+"Data posted to "+url+" successfully.")
 					}
 
 					return string(body[:])
 				} else {
 					if logger != nil {
-						logger.Log(LogDebug,logPrefix+"Couldn't post data to "+url+" successfully; Response code: "+
-							strconv.Itoa(resp.StatusCode)+" Response Body: "+string(body[:]), err)
+						logger.Log(LogDebug, logPrefix+"Couldn't post data to "+url+" successfully; Response code: "+
+							strconv.Itoa(resp.StatusCode)+" Response Body: "+string(body[:])+err.Error())
 					}
 				}
 			} else {
 				if logger != nil {
-					logger.Log(LogError,logPrefix+"Couldn't read the response from "+url, err)
+					logger.Log(LogError, logPrefix+"Couldn't read the response from "+url+err.Error())
 				}
 			}
 			break
 		} else if i < 3 {
 			if logger != nil {
-				logger.Log(LogError,logPrefix+"Error occurred while sending data to "+url+", will retry.", error)
+				logger.Log(LogError, logPrefix+"Error occurred while sending data to "+url+", will retry."+error.Error())
 			}
 		} else {
 			if logger != nil {
-				logger.Log(LogError,logPrefix+"Failed to post data to "+url+".", error)
+				logger.Log(LogError, logPrefix+"Failed to post data to "+url+"."+error.Error())
 			}
 		}
 
@@ -547,19 +546,19 @@ func parseFlags() {
 	if *apiKey != "" {
 		parameters["apiKey"] = *apiKey
 	} else {
-		parameters["apiKey"] = configParameters ["apiKey"]
+		parameters["apiKey"] = configParameters["apiKey"]
 	}
 
 	if *responders != "" {
 		parameters["responders"] = *responders
 	} else {
-		parameters["responders"] = configParameters ["responders"]
+		parameters["responders"] = configParameters["responders"]
 	}
 
 	if *tags != "" {
 		parameters["tags"] = *tags
 	} else {
-		parameters["tags"] = configParameters ["tags"]
+		parameters["tags"] = configParameters["tags"]
 	}
 
 	if *logPath != "" {
