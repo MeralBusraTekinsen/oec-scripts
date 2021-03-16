@@ -106,7 +106,7 @@ type IssueDetailsResult struct {
 	OpsGenieAlertAlias  string `xml:"OpsGenie__bAlert__bAlias"`
 }
 
-func main() {
+func mainReal() {
 	if runtime.GOOS == "windows" {
 		configPath = "C:\\opsgenie-integration\\conf\\opsgenie-integration.conf"
 		configPath2 = "C:\\opsgenie-integration\\conf\\config.json"
@@ -229,6 +229,20 @@ func main() {
 	}
 
 	postToOpsgenie()
+}
+
+func main(){
+	configParameters = map[string]string{"apiKey": "",
+		"bmcFootPrints2opsgenie.logger": "debug"}
+	parameters = make(map[string]string)
+
+	logger = configureLogger()
+
+	logger.Log(LogInfo, "Info level log msg")    // this will be ignored
+	logger.Log(LogError, "error message") // this should included in the log file
+	logger.Log(LogDebug, "debug message") // this should included in the log file
+	logger.Log(LogWarning, "warning message") // this should included in the log file
+
 }
 
 func printConfigToLog() {
