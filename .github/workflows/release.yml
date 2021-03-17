@@ -87,7 +87,11 @@ jobs:
     - name: Remove Log File
       run: |
         INTEGRATION_PATH=.release/oec-linux/${{ env.INTEGRATION_FOLDER }}/opsgenie-${{ env.INTEGRATION_NAME }}
-        rm -f INTEGRATION_PATH/log.go
+        echo ${INTEGRATION_PATH}
+        cd ${INTEGRATION_PATH} && \
+        ls -la
+        pwd
+        rm -f log.go
     - name: Compressing Linux Package
       run: |
           cd .release/oec-linux/
