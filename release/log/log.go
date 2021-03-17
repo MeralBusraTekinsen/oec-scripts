@@ -39,7 +39,7 @@ func (opsgenieFileLogger *OpsgenieFileLogger) log(level int, msg string) {
 	if opsgenieFileLogger.Logger != nil {
 		if level >= opsgenieFileLogger.LogLevel {
 			opsgenieFileLogger.Logger.SetPrefix(levelPrefix[level])
-			opsgenieFileLogger.Logger.Println(msg) // maybe you want to include the loglevel here, modify it as you want
+			opsgenieFileLogger.Logger.Println(msg)
 		}
 	} else {
 		fmt.Println("FileLogger is not initialized correctly")
