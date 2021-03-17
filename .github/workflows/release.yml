@@ -81,16 +81,12 @@ jobs:
         INTEGRATION_PATH=oec-linux/${{ env.INTEGRATION_FOLDER }}/opsgenie-${{ env.INTEGRATION_NAME }}
         echo ${INTEGRATION_PATH}
         cd ${INTEGRATION_PATH} && \
-        ls -la
-        pwd
         GOOS=linux GOARCH=amd64 go build -o send2opsgenie send2opsgenie.go log.go
     - name: Remove Log File
       run: |
         INTEGRATION_PATH=.release/oec-linux/${{ env.INTEGRATION_FOLDER }}/opsgenie-${{ env.INTEGRATION_NAME }}
         echo ${INTEGRATION_PATH}
         cd ${INTEGRATION_PATH} && \
-        ls -la
-        pwd
         rm -f log.go
     - name: Compressing Linux Package
       run: |
