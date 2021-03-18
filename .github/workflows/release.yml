@@ -152,6 +152,12 @@ jobs:
         echo ${INTEGRATION_PATH}
         cd ${INTEGRATION_PATH} && \
         GOOS=linux GOARCH=amd64 go build -o send2opsgenie send2opsgenie.go log.go
+    - name: Remove Log File
+      run: |
+        INTEGRATION_PATH=.release/oec-linux/${{ env.INTEGRATION_FOLDER }}/opsgenie-${{ env.INTEGRATION_NAME }}
+        echo ${INTEGRATION_PATH}
+        cd ${INTEGRATION_PATH} && \
+        rm -f log.go
     - name: Create RPM Package 
       working-directory: .release/oec-rpm
       run: |
@@ -247,6 +253,12 @@ jobs:
         echo ${INTEGRATION_PATH}
         cd ${INTEGRATION_PATH} && \
         GOOS=linux GOARCH=amd64 go build -o send2opsgenie send2opsgenie.go log.go
+    - name: Remove Log File
+      run: |
+        INTEGRATION_PATH=.release/oec-linux/${{ env.INTEGRATION_FOLDER }}/opsgenie-${{ env.INTEGRATION_NAME }}
+        echo ${INTEGRATION_PATH}
+        cd ${INTEGRATION_PATH} && \
+        rm -f log.go
     - name: Create Deb Package 
       working-directory: .release/
       run: |
@@ -324,6 +336,12 @@ jobs:
         echo ${INTEGRATION_PATH}
         cd ${INTEGRATION_PATH} && \
         GOOS=linux GOARCH=amd64 go build -o send2opsgenie send2opsgenie.go log.go
+    - name: Remove Log File
+      run: |
+        INTEGRATION_PATH=.release/oec-linux/${{ env.INTEGRATION_FOLDER }}/opsgenie-${{ env.INTEGRATION_NAME }}
+        echo ${INTEGRATION_PATH}
+        cd ${INTEGRATION_PATH} && \
+        rm -f log.go
     - name: Compressing Win32 Package
       run: |
           cd .release/oec-win32/
@@ -391,6 +409,12 @@ jobs:
         echo ${INTEGRATION_PATH}
         cd ${INTEGRATION_PATH} && \
         GOOS=linux GOARCH=amd64 go build -o send2opsgenie send2opsgenie.go log.go
+    - name: Remove Log File
+      run: |
+        INTEGRATION_PATH=.release/oec-linux/${{ env.INTEGRATION_FOLDER }}/opsgenie-${{ env.INTEGRATION_NAME }}
+        echo ${INTEGRATION_PATH}
+        cd ${INTEGRATION_PATH} && \
+        rm -f log.go
     - name: Compressing Win 64 Package
       run: |
           cd .release/oec-win64/
