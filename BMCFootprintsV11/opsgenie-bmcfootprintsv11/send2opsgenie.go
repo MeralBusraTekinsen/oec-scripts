@@ -326,7 +326,7 @@ func configureLogger() *OpsgenieFileLogger {
 		}
 	}
 
-	var tmpLogger = NewFileLogger()
+	var tmpLogger *OpsgenieFileLogger
 
 	file, err := os.OpenFile(logFilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 
@@ -345,12 +345,11 @@ func configureLogger() *OpsgenieFileLogger {
 		if errTmp != nil {
 			fmt.Println("Logging disabled. Reason: ", errTmp)
 		} else {
-			tmpLogger.setOutput(fileTmp)
+			tmpLogger = NewFileLogger(fileTmp, levels[strings.ToLower(level)])
 		}
 	} else {
-		tmpLogger.setOutput(file)
+		tmpLogger = NewFileLogger(file, levels[strings.ToLower(level)])
 	}
-	tmpLogger.LogLevel = levels[strings.ToLower(level)]
 
 	return tmpLogger
 }
@@ -375,7 +374,7 @@ func getHttpClient(timeout int) *http.Client {
 		}
 
 		if logger != nil {
-			logger.Debug("Formed Proxy url: " + u.String())
+			logger.Debug("Formed Proxy url: ", u)
 		}
 		proxy = http.ProxyURL(u)
 	}
@@ -387,7 +386,7 @@ func getHttpClient(timeout int) *http.Client {
 				conn, err := net.DialTimeout(netw, addr, time.Second*time.Duration(seconds))
 				if err != nil {
 					if logger != nil {
-						logger.Error("Error occurred while connecting: " + err.Error())
+						logger.Error("Error occurred while connecting: ", err)
 					}
 					return nil, err
 				}
@@ -436,23 +435,23 @@ func postRequest(url string, data []byte, headersMap map[string]string) string {
 					return string(body[:])
 				} else {
 					if logger != nil {
-						logger.Debug(logPrefix + "Couldn't post data to " + url + " successfully; Response code: " +
-							strconv.Itoa(resp.StatusCode) + " Response Body: " + string(body[:]) + err.Error())
+						logger.Error(logPrefix+"Couldn't post data to "+url+" successfully; Response code: "+
+							strconv.Itoa(resp.StatusCode)+" Response Body: "+string(body[:]), err)
 					}
 				}
 			} else {
 				if logger != nil {
-					logger.Error(logPrefix + "Couldn't read the response from " + url + err.Error())
+					logger.Error(logPrefix+"Couldn't read the response from "+url, err)
 				}
 			}
 			break
 		} else if i < 3 {
 			if logger != nil {
-				logger.Error(logPrefix + "Error occurred while sending data to " + url + ", will retry." + error.Error())
+				logger.Error(logPrefix+"Error occurred while sending data to "+url+", will retry.", error)
 			}
 		} else {
 			if logger != nil {
-				logger.Error(logPrefix + "Failed to post data to " + url + "." + error.Error())
+				logger.Error(logPrefix+"Failed to post data to "+url+".", error)
 			}
 		}
 
