@@ -154,7 +154,7 @@ jobs:
         GOOS=linux GOARCH=amd64 go build -o send2opsgenie send2opsgenie.go log.go
     - name: Remove Log File
       run: |
-        INTEGRATION_PATH=.release/oec-linux/${{ env.INTEGRATION_FOLDER }}/opsgenie-${{ env.INTEGRATION_NAME }}
+        INTEGRATION_PATH=.release/oec-rpm/oec-scripts/opsgenie-${INTEGRATION_NAME}
         echo ${INTEGRATION_PATH}
         cd ${INTEGRATION_PATH} && \
         rm -f log.go
@@ -255,7 +255,7 @@ jobs:
         GOOS=linux GOARCH=amd64 go build -o send2opsgenie send2opsgenie.go log.go
     - name: Remove Log File
       run: |
-        INTEGRATION_PATH=.release/oec-linux/${{ env.INTEGRATION_FOLDER }}/opsgenie-${{ env.INTEGRATION_NAME }}
+        INTEGRATION_PATH=.release/oec-deb/home/opsgenie/oec/opsgenie-${{ env.INTEGRATION_NAME }}
         echo ${INTEGRATION_PATH}
         cd ${INTEGRATION_PATH} && \
         rm -f log.go
@@ -338,7 +338,7 @@ jobs:
         GOOS=linux GOARCH=amd64 go build -o send2opsgenie send2opsgenie.go log.go
     - name: Remove Log File
       run: |
-        INTEGRATION_PATH=.release/oec-linux/${{ env.INTEGRATION_FOLDER }}/opsgenie-${{ env.INTEGRATION_NAME }}
+        INTEGRATION_PATH=.release/oec-win32/${{ env.INTEGRATION_FOLDER }}/opsgenie-${{ env.INTEGRATION_NAME }}
         echo ${INTEGRATION_PATH}
         cd ${INTEGRATION_PATH} && \
         rm -f log.go
@@ -411,7 +411,7 @@ jobs:
         GOOS=linux GOARCH=amd64 go build -o send2opsgenie send2opsgenie.go log.go
     - name: Remove Log File
       run: |
-        INTEGRATION_PATH=.release/oec-linux/${{ env.INTEGRATION_FOLDER }}/opsgenie-${{ env.INTEGRATION_NAME }}
+        INTEGRATION_PATH=.release/oec-win64/${{ env.INTEGRATION_FOLDER }}/opsgenie-${{ env.INTEGRATION_NAME }}
         echo ${INTEGRATION_PATH}
         cd ${INTEGRATION_PATH} && \
         rm -f log.go
