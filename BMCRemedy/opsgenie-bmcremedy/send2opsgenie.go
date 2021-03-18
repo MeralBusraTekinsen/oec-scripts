@@ -7,8 +7,6 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/alexcesaro/log"
-	"github.com/alexcesaro/log/golog"
 	"io"
 	"io/ioutil"
 	"net"
@@ -33,7 +31,7 @@ var configParameters = map[string]string{"apiKey": API_KEY,
 	"bmcRemedy2opsgenie.http.proxy.username": "",
 	"bmcRemedy2opsgenie.http.proxy.password": ""}
 
-var logger log.Logger
+var logger *OpsgenieFileLogger
 
 type Incident struct {
 	IncidentID         string
@@ -255,15 +253,15 @@ func http_post(jsonBody []byte, incidentID string) {
 	}
 }
 
-func configureLogger(logFilePath string) log.Logger {
+func configureLogger(logFilePath string) *OpsgenieFileLogger {
 	logFilePath += "\\send2opsgenie.log"
-	var tmpLogger log.Logger
+	var tmpLogger *OpsgenieFileLogger
 	file, err := os.OpenFile(logFilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 
 	if err != nil {
 		fmt.Println("Could not create log file \""+logFilePath+" Error: ", err)
 	} else {
-		tmpLogger = golog.New(file, log.Info)
+		tmpLogger = NewFileLogger(file, LogInfo)
 	}
 
 	return tmpLogger

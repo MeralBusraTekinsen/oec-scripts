@@ -1,39 +1,37 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
-	"flag"
-	"net/http"
-	"net"
-	"time"
-	"os"
 	"bufio"
-	"strings"
-	"io"
-	"strconv"
-	"github.com/alexcesaro/log/golog"
-	"github.com/alexcesaro/log"
-	"fmt"
-	"io/ioutil"
+	"bytes"
 	"crypto/tls"
-	"net/url"
 	"encoding/base64"
+	"encoding/json"
 	"encoding/xml"
+	"flag"
+	"fmt"
+	"io"
+	"io/ioutil"
+	"net"
+	"net/http"
+	"net/url"
+	"os"
 	"runtime"
+	"strconv"
+	"strings"
+	"time"
 )
 
 var TOTAL_TIME = 60
 var configParameters = map[string]string{"apiKey": "",
-	"bmcFootPrints.url": "",
-	"bmcFootPrints.username": "",
-	"bmcFootPrints.password": "",
-	"bmcFootPrints.workspaceName": "",
-	"bmcFootPrints2opsgenie.logger": "warning",
-	"opsgenie.api.url": "https://api.opsgenie.com",
-	"bmcFootPrints2opsgenie.http.proxy.enabled": "false",
-	"bmcFootPrints2opsgenie.http.proxy.port": "1111",
-	"bmcFootPrints2opsgenie.http.proxy.host": "localhost",
+	"bmcFootPrints.url":                          "",
+	"bmcFootPrints.username":                     "",
+	"bmcFootPrints.password":                     "",
+	"bmcFootPrints.workspaceName":                "",
+	"bmcFootPrints2opsgenie.logger":              "warning",
+	"opsgenie.api.url":                           "https://api.opsgenie.com",
+	"bmcFootPrints2opsgenie.http.proxy.enabled":  "false",
+	"bmcFootPrints2opsgenie.http.proxy.port":     "1111",
+	"bmcFootPrints2opsgenie.http.proxy.host":     "localhost",
 	"bmcFootPrints2opsgenie.http.proxy.protocol": "http",
 	"bmcFootPrints2opsgenie.http.proxy.username": "",
 	"bmcFootPrints2opsgenie.http.proxy.password": ""}
@@ -43,8 +41,8 @@ var bmcFootPrintsWebServiceURL string
 
 var configPath string
 var configPath2 string
-var levels = map[string]log.Level{"info": log.Info, "debug": log.Debug, "warning": log.Warning, "error": log.Error}
-var logger log.Logger
+var levels = map[string]int{"info": LogInfo, "debug": LogDebug, "warning": LogWarning, "error": LogError}
+var logger *OpsgenieFileLogger
 var ogPrefix string = "[OpsGenie] "
 
 type Definition struct {
@@ -223,7 +221,7 @@ func main() {
 
 func printConfigToLog() {
 	if logger != nil {
-		if logger.LogDebug() {
+		if logger.LogLevel == LogDebug {
 			logger.Debug("Config:")
 			for k, v := range configParameters {
 				if strings.Contains(k, "password") {
@@ -236,7 +234,7 @@ func printConfigToLog() {
 	}
 }
 
-func readConfigurationFileFromOECConfig(filepath string) (error) {
+func readConfigurationFileFromOECConfig(filepath string) error {
 
 	jsonFile, err := os.Open(filepath)
 
@@ -291,7 +289,7 @@ func readConfigFile(file io.Reader) {
 	}
 }
 
-func configureLogger() log.Logger {
+func configureLogger() *OpsgenieFileLogger {
 	level := configParameters["bmcFootPrints2opsgenie.logger"]
 	var logFilePath = parameters["logPath"]
 
@@ -303,7 +301,7 @@ func configureLogger() log.Logger {
 		}
 	}
 
-	var tmpLogger log.Logger
+	var tmpLogger *OpsgenieFileLogger
 
 	file, err := os.OpenFile(logFilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 
@@ -322,10 +320,10 @@ func configureLogger() log.Logger {
 		if errTmp != nil {
 			fmt.Println("Logging disabled. Reason: ", errTmp)
 		} else {
-			tmpLogger = golog.New(fileTmp, levels[strings.ToLower(level)])
+			tmpLogger = NewFileLogger(fileTmp, levels[strings.ToLower(level)])
 		}
 	} else {
-		tmpLogger = golog.New(file, levels[strings.ToLower(level)])
+		tmpLogger = NewFileLogger(file, levels[strings.ToLower(level)])
 	}
 
 	return tmpLogger
@@ -412,8 +410,8 @@ func postRequest(url string, data []byte, headersMap map[string]string) string {
 					return string(body[:])
 				} else {
 					if logger != nil {
-						logger.Error(logPrefix + "Couldn't post data to " + url + " successfully; Response code: "+
-							strconv.Itoa(resp.StatusCode)+ " Response Body: "+ string(body[:]), err)
+						logger.Error(logPrefix+"Couldn't post data to "+url+" successfully; Response code: "+
+							strconv.Itoa(resp.StatusCode)+" Response Body: "+string(body[:]), err)
 					}
 				}
 			} else {
@@ -513,15 +511,15 @@ func getItemId(itemDefinitionId string, itemNumber string) string {
 
 func getTicketDetails(itemDefinitionId string, ticketId string) TicketDetailsResult {
 	bodyStr := `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ext="http://externalapi.business.footprints.numarasoftware.com/">
-   					<soapenv:Header/>
-   					<soapenv:Body>
-      					<ext:getTicketDetails>
-         					<getItemDetailsRequest>
-            					<_itemDefinitionId>` + itemDefinitionId + `</_itemDefinitionId>
-            					<_itemId>` + ticketId + `</_itemId>
-         					</getItemDetailsRequest>
-      					</ext:getTicketDetails>
-   					</soapenv:Body>
+  					<soapenv:Header/>
+  					<soapenv:Body>
+     					<ext:getTicketDetails>
+        					<getItemDetailsRequest>
+           					<_itemDefinitionId>` + itemDefinitionId + `</_itemDefinitionId>
+           					<_itemId>` + ticketId + `</_itemId>
+        					</getItemDetailsRequest>
+     					</ext:getTicketDetails>
+  					</soapenv:Body>
 				</soapenv:Envelope>`
 	headersMap := map[string]string{
 		"Authorization": "Basic " + base64.StdEncoding.EncodeToString([]byte(parameters["username"]+":"+parameters["password"])),
@@ -585,9 +583,9 @@ func getInnerElements(str string, tag string, includeMainElement bool) string {
 
 	if beginIndex != -1 && endIndex != -1 {
 		if includeMainElement {
-			return str[beginIndex:endIndex+len(endString)]
+			return str[beginIndex : endIndex+len(endString)]
 		} else {
-			return str[beginIndex+len(beginString):endIndex]
+			return str[beginIndex+len(beginString) : endIndex]
 		}
 	} else {
 		return ""
@@ -606,7 +604,7 @@ func getCustomField(customFields CustomFields, customFieldName string) string {
 
 func reformatUrl(url string) string {
 	if strings.HasSuffix(url, "/") {
-		return url[0:len(url)-1]
+		return url[0 : len(url)-1]
 	} else {
 		return url
 	}
@@ -638,19 +636,19 @@ func parseFlags() {
 	if *apiKey != "" {
 		parameters["apiKey"] = *apiKey
 	} else {
-		parameters["apiKey"] = configParameters ["apiKey"]
+		parameters["apiKey"] = configParameters["apiKey"]
 	}
 
 	if *responders != "" {
 		parameters["responders"] = *responders
 	} else {
-		parameters["responders"] = configParameters ["responders"]
+		parameters["responders"] = configParameters["responders"]
 	}
 
 	if *tags != "" {
 		parameters["tags"] = *tags
 	} else {
-		parameters["tags"] = configParameters ["tags"]
+		parameters["tags"] = configParameters["tags"]
 	}
 
 	if *logPath != "" {

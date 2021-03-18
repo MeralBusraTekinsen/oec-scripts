@@ -7,8 +7,7 @@ import (
 )
 
 const (
-	LogNone = iota
-	LogDebug
+    LogDebug = iota
 	LogInfo
 	LogWarning
 	LogError
@@ -22,42 +21,37 @@ type OpsgenieFileLogger struct {
 	LogLevel int
 }
 
-func NewFileLogger() *OpsgenieFileLogger {
+func NewFileLogger(file *os.File, level int) *OpsgenieFileLogger {
 	return &OpsgenieFileLogger{
-		Logger:   nil,
-		LogFile:  nil,
-		LogLevel: LogNone,
+		Logger:   log.New(file, "", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lmsgprefix),
+		LogFile:  file,
+		LogLevel: level,
 	}
-}
-
-func (opsgenieFileLogger *OpsgenieFileLogger) setOutput(file *os.File) {
-	opsgenieFileLogger.Logger = log.New(file, "", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lmsgprefix)
-	opsgenieFileLogger.LogFile = file
 }
 
 func (opsgenieFileLogger *OpsgenieFileLogger) log(level int, msg string) {
 	if opsgenieFileLogger.Logger != nil {
 		if level >= opsgenieFileLogger.LogLevel {
 			opsgenieFileLogger.Logger.SetPrefix(levelPrefix[level])
-			opsgenieFileLogger.Logger.Println(msg)
+			opsgenieFileLogger.Logger.Print(msg)
 		}
 	} else {
 		fmt.Println("FileLogger is not initialized correctly")
 	}
 }
 
-func (opsgenieFileLogger *OpsgenieFileLogger) Error(msg string) {
-	opsgenieFileLogger.log(LogError, msg)
+func (opsgenieFileLogger *OpsgenieFileLogger) Error(msg ...interface{}) {
+	opsgenieFileLogger.log(LogError, fmt.Sprintln(msg...))
 }
 
-func (opsgenieFileLogger *OpsgenieFileLogger) Info(msg string) {
-	opsgenieFileLogger.log(LogInfo, msg)
+func (opsgenieFileLogger *OpsgenieFileLogger) Info(msg ...interface{}) {
+	opsgenieFileLogger.log(LogInfo, fmt.Sprintln(msg...))
 }
 
-func (opsgenieFileLogger *OpsgenieFileLogger) Warning(msg string) {
-	opsgenieFileLogger.log(LogWarning, msg)
+func (opsgenieFileLogger *OpsgenieFileLogger) Warning(msg ...interface{}) {
+	opsgenieFileLogger.log(LogWarning, fmt.Sprintln(msg...))
 }
 
-func (opsgenieFileLogger *OpsgenieFileLogger) Debug(msg string) {
-	opsgenieFileLogger.log(LogDebug, msg)
+func (opsgenieFileLogger *OpsgenieFileLogger) Debug(msg ...interface{}) {
+	opsgenieFileLogger.log(LogDebug, fmt.Sprintln(msg...))
 }
