@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       integration:
-        description: 'Integration'     
+        description: 'Integration'
         required: true
       oec-version:
         description: 'Version of OEC'
@@ -63,6 +63,12 @@ jobs:
         file: oec-linux-amd64-${{ github.event.inputs.oec-version }}.zip
     - name: Extracting Linux Package
       run: unzip -qq oec-linux-amd64-${{ github.event.inputs.oec-version }}.zip -d .release/oec-linux/${{ env.INTEGRATION_FOLDER }}
+    - name: Copy Log File if Incoming part exist
+      run: |
+        if [ -d ${{ github.event.inputs.integration }}/opsgenie-${{ env.INTEGRATION_NAME }} ]
+        then
+          cp -R release/log/log.go ${{ github.event.inputs.integration }}/opsgenie-${{ env.INTEGRATION_NAME }}/.
+        fi
     - name: Copy Integration Files
       run: cp -R ${{ github.event.inputs.integration }}/. .release/oec-linux/${{ env.INTEGRATION_FOLDER }}
     - name: Remove http script (todo remove when http version is released)
@@ -146,7 +152,7 @@ jobs:
         cp -R release/log/log.go .
         GOOS=linux GOARCH=amd64 go build -o send2opsgenie send2opsgenie.go log.go
         rm -f log.go
-    - name: Create RPM Package 
+    - name: Create RPM Package
       working-directory: .release/oec-rpm
       run: |
         sed -i "s|<path_of_script>|$RPM_BUILD_ROOT/home/opsgenie/oec/scripts/actionExecutor.py|" oec-scripts/conf/config.json
@@ -241,7 +247,7 @@ jobs:
         cp -R release/log/log.go .
         GOOS=linux GOARCH=amd64 go build -o send2opsgenie send2opsgenie.go log.go
         rm -f log.go
-    - name: Create Deb Package 
+    - name: Create Deb Package
       working-directory: .release/
       run: |
         sed -i "s|<path_of_script>|/home/opsgenie/oec/scripts/actionExecutor.py|" oec-deb/home/opsgenie/oec/conf/config.json
@@ -260,7 +266,7 @@ jobs:
       with:
         name: Debian Artifact
         path: .release/oec-deb/opsgenie-${{ env.INTEGRATION_NAME }}_${{ env.INTEGRATION_VERSION }}_amd64.deb
-    - name: Upload 
+    - name: Upload
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -277,7 +283,7 @@ jobs:
       INTEGRATION_NAME: ${{ needs.setup.outputs.integration_name }}
       INTEGRATION_VERSION: ${{ needs.setup.outputs.integration_version }}
       INTEGRATION_FOLDER: opsgenie-${{ needs.setup.outputs.integration_name }}-${{ needs.setup.outputs.integration_version }}-win-386
-    if: github.ref == 'refs/heads/master'    
+    if: github.ref == 'refs/heads/master'
     steps:
     - name: Set up Go 1.x
       uses: actions/setup-go@v2
@@ -344,7 +350,7 @@ jobs:
       INTEGRATION_NAME: ${{ needs.setup.outputs.integration_name }}
       INTEGRATION_VERSION: ${{ needs.setup.outputs.integration_version }}
       INTEGRATION_FOLDER: opsgenie-${{ needs.setup.outputs.integration_name }}-${{ needs.setup.outputs.integration_version }}-win-amd64
-    if: github.ref == 'refs/heads/master'    
+    if: github.ref == 'refs/heads/master'
     steps:
     - name: Set up Go 1.x
       uses: actions/setup-go@v2
