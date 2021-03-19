@@ -135,6 +135,12 @@ jobs:
       run: unzip -qq oec-linux-amd64-${{ github.event.inputs.oec-version }}.zip -d .release/oec-rpm
     - name: Copy SPEC Files
       run: cp -R release/oec-builder/oec-rpm/. .release/oec-rpm
+    - name: Copy Log File if Incoming part exist
+      run: |
+        if [ -d ${{ github.event.inputs.integration }}/opsgenie-${{ env.INTEGRATION_NAME }} ]
+        then
+          cp -R release/log/log.go ${{ github.event.inputs.integration }}/opsgenie-${{ env.INTEGRATION_NAME }}/.
+        fi
     - name: Copy Integration Files
       run: cp -R ${{ github.event.inputs.integration }}/. .release/oec-rpm/oec-scripts
     - name: Check Incoming part exists
@@ -230,6 +236,12 @@ jobs:
       run: cp -R release/oec-builder/oec-deb/. .release/oec-deb
     - name: Create Output Directory
       run: mkdir -p .release/oec-deb/home/opsgenie/oec
+    - name: Copy Log File if Incoming part exist
+      run: |
+        if [ -d ${{ github.event.inputs.integration }}/opsgenie-${{ env.INTEGRATION_NAME }} ]
+        then
+          cp -R release/log/log.go ${{ github.event.inputs.integration }}/opsgenie-${{ env.INTEGRATION_NAME }}/.
+        fi
     - name: Copy Integration Files
       run: cp -R ${{ github.event.inputs.integration }}/. .release/oec-deb/home/opsgenie/oec
     - name: Check Incoming part exists
@@ -305,6 +317,12 @@ jobs:
       run: unzip -qq oec-win-386-${{ github.event.inputs.oec-version }}.zip -d .release/oec-win32/${{ env.INTEGRATION_FOLDER }}
     - name: Copy OEC Service Conf
       run: cp -R release/oec-builder/oec-win32/oecService.json.example .release/oec-win32/${{ env.INTEGRATION_FOLDER }}
+    - name: Copy Log File if Incoming part exist
+      run: |
+        if [ -d ${{ github.event.inputs.integration }}/opsgenie-${{ env.INTEGRATION_NAME }} ]
+        then
+          cp -R release/log/log.go ${{ github.event.inputs.integration }}/opsgenie-${{ env.INTEGRATION_NAME }}/.
+        fi
     - name: Copy Integration Files
       run: cp -R ${{ github.event.inputs.integration }}/. .release/oec-win32/${{ env.INTEGRATION_FOLDER }}
     - name: Remove http script (todo remove when http version is released)
@@ -372,6 +390,12 @@ jobs:
       run: unzip -qq oec-win-amd64-${{ github.event.inputs.oec-version }}.zip -d .release/oec-win64/${{ env.INTEGRATION_FOLDER }}
     - name: Copy OEC Service Conf
       run: cp -R release/oec-builder/oec-win64/oecService.json.example .release/oec-win64/${{ env.INTEGRATION_FOLDER }}
+    - name: Copy Log File if Incoming part exist
+      run: |
+        if [ -d ${{ github.event.inputs.integration }}/opsgenie-${{ env.INTEGRATION_NAME }} ]
+        then
+          cp -R release/log/log.go ${{ github.event.inputs.integration }}/opsgenie-${{ env.INTEGRATION_NAME }}/.
+        fi
     - name: Copy Integration Files
       run: cp -R ${{ github.event.inputs.integration }}/. .release/oec-win64/${{ env.INTEGRATION_FOLDER }}
     - name: Remove http script (todo remove when http version is released)
