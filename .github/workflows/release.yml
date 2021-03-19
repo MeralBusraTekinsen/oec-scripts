@@ -85,7 +85,6 @@ jobs:
         INTEGRATION_PATH=oec-linux/${{ env.INTEGRATION_FOLDER }}/opsgenie-${{ env.INTEGRATION_NAME }}
         echo ${INTEGRATION_PATH}
         cd ${INTEGRATION_PATH} && \
-        cp -R release/log/log.go .
         GOOS=linux GOARCH=amd64 go build -o send2opsgenie send2opsgenie.go log.go
         rm -f log.go
     - name: Compressing Linux Package
@@ -155,7 +154,6 @@ jobs:
         INTEGRATION_PATH=oec-rpm/oec-scripts/opsgenie-${INTEGRATION_NAME}
         echo ${INTEGRATION_PATH}
         cd ${INTEGRATION_PATH} && \
-        cp -R release/log/log.go .
         GOOS=linux GOARCH=amd64 go build -o send2opsgenie send2opsgenie.go log.go
         rm -f log.go
     - name: Create RPM Package
@@ -256,7 +254,6 @@ jobs:
         INTEGRATION_PATH=oec-deb/home/opsgenie/oec/opsgenie-${{ env.INTEGRATION_NAME }}
         echo ${INTEGRATION_PATH}
         cd ${INTEGRATION_PATH} && \
-        cp -R release/log/log.go .
         GOOS=linux GOARCH=amd64 go build -o send2opsgenie send2opsgenie.go log.go
         rm -f log.go
     - name: Create Deb Package
@@ -339,7 +336,6 @@ jobs:
         INTEGRATION_PATH=oec-win32/${{ env.INTEGRATION_FOLDER }}/opsgenie-${{ env.INTEGRATION_NAME }}
         echo ${INTEGRATION_PATH}
         cd ${INTEGRATION_PATH} && \
-        cp -R release/log/log.go .
         GOOS=linux GOARCH=amd64 go build -o send2opsgenie send2opsgenie.go log.go
         rm -f log.go
     - name: Compressing Win32 Package
@@ -412,7 +408,6 @@ jobs:
         INTEGRATION_PATH=oec-win64/${{ env.INTEGRATION_FOLDER }}/opsgenie-${{ env.INTEGRATION_NAME }}
         echo ${INTEGRATION_PATH}
         cd ${INTEGRATION_PATH} && \
-        cp -R release/log/log.go .
         GOOS=linux GOARCH=amd64 go build -o send2opsgenie send2opsgenie.go log.go
         rm -f log.go
     - name: Compressing Win 64 Package
