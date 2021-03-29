@@ -174,7 +174,9 @@ func main() {
 		parameters["resolutionDateTime"] = getCustomField(itemDetails.CustomFields, "Resolution Date & Time")
 	} else if len(itemDetails.AllDescriptionsList.DescriptionsDetails) > 1 {
 		if strings.HasPrefix(itemDetails.Description, ogPrefix) {
-			logger.Debug("Skipping, Incident or Problem was created from OpsGenie.")
+			if logger != nil {
+				logger.Debug("Skipping, Incident or Problem was created from OpsGenie.")
+			}
 			return
 		}
 
@@ -183,7 +185,9 @@ func main() {
 		parameters["updatedBy"] = getCustomField(itemDetails.CustomFields, "Updated By")
 	} else {
 		if strings.HasPrefix(itemDetails.Description, ogPrefix) {
-			logger.Debug("Skipping, Incident or Problem was created from OpsGenie.")
+			if logger != nil {
+				logger.Debug("Skipping, Incident or Problem was created from OpsGenie.")
+			}
 			return
 		}
 
@@ -460,7 +464,9 @@ func getWorkspaceId(workspaceName string) string {
 		"Authorization": "Basic " + base64.StdEncoding.EncodeToString([]byte(parameters["username"]+":"+parameters["password"])),
 	}
 
-	logger.Debug(logPrefix + "Retrieving Workspace ID for workspace " + workspaceName + ".")
+	if logger != nil {
+		logger.Debug(logPrefix + "Retrieving Workspace ID for workspace " + workspaceName + ".")
+	}
 
 	responseString := postRequest(bmcFootPrintsWebServiceURL, []byte(bodyStr), headersMap)
 	return parseWorkspaceId(responseString, workspaceName)
@@ -481,8 +487,9 @@ func getItemDefinitionId(workspaceId string, itemType string) string {
 		"Authorization": "Basic " + base64.StdEncoding.EncodeToString([]byte(parameters["username"]+":"+parameters["password"])),
 	}
 
-	logger.Debug(logPrefix + "Retrieving Item Definition ID with Workspace ID " + workspaceId + ".")
-
+	if logger != nil {
+		logger.Debug(logPrefix + "Retrieving Item Definition ID with Workspace ID " + workspaceId + ".")
+	}
 	responseString := postRequest(bmcFootPrintsWebServiceURL, []byte(bodyStr), headersMap)
 	return parseItemDefinitionId(responseString, itemType)
 }
@@ -503,7 +510,9 @@ func getItemId(itemDefinitionId string, itemNumber string) string {
 		"Authorization": "Basic " + base64.StdEncoding.EncodeToString([]byte(parameters["username"]+":"+parameters["password"])),
 	}
 
-	logger.Debug(logPrefix + "Retrieving Item ID with Item Definition ID " + itemDefinitionId + " and Item Number " + itemNumber + ".")
+	if logger != nil {
+		logger.Debug(logPrefix + "Retrieving Item ID with Item Definition ID " + itemDefinitionId + " and Item Number " + itemNumber + ".")
+	}
 
 	responseString := postRequest(bmcFootPrintsWebServiceURL, []byte(bodyStr), headersMap)
 	return parseItemId(responseString)
@@ -525,7 +534,9 @@ func getTicketDetails(itemDefinitionId string, ticketId string) TicketDetailsRes
 		"Authorization": "Basic " + base64.StdEncoding.EncodeToString([]byte(parameters["username"]+":"+parameters["password"])),
 	}
 
-	logger.Debug(logPrefix + "Retrieving Ticket Details with Item Definition ID " + itemDefinitionId + " and Item ID " + ticketId + ".")
+	if logger != nil {
+		logger.Debug(logPrefix + "Retrieving Ticket Details with Item Definition ID " + itemDefinitionId + " and Item ID " + ticketId + ".")
+	}
 
 	responseString := postRequest(bmcFootPrintsWebServiceURL, []byte(bodyStr), headersMap)
 	return parseTicketDetails(responseString)

@@ -1,5 +1,3 @@
-package main
-
 import (
 	"bufio"
 	"bytes"
@@ -69,7 +67,9 @@ func main() {
 	}
 	loggerPath := filepath.Dir(scriptPath)
 	logger = configureLogger(loggerPath)
-	logger.Info("Initializing BMC Remedy to Opsgenie Script..\r\n")
+	if logger != nil {
+		logger.Info("Initializing BMC Remedy to Opsgenie Script..\r\n")
+	}
 
 	configPathPtr := flag.String("config-path", "C:\\OpsGenie\\BMCRemedyIntegration\\opsgenie-integration\\conf\\opsgenie-integration.conf", "OpsGenie Config Path")
 	configFile, err := os.Open(*configPathPtr)
@@ -87,7 +87,9 @@ func main() {
 		panic(errFromConf)
 	}
 
-	logger.Debug(configParameters, "\r\n")
+	if logger != nil {
+		logger.Debug(configParameters, "\r\n")
+	}
 	printConfigToLog()
 
 	incident := parseFlags()
@@ -143,8 +145,10 @@ func parseFlags() Incident {
 		*Resolution}
 	API_KEY = *OpsGenieIntegrationAPIKey
 
-	logger.Info("Flags parsed successfully:\r\n")
-	logger.Debug(incident, "\r\n")
+	if logger != nil {
+		logger.Info("Flags parsed successfully:\r\n")
+		logger.Debug(incident, "\r\n")
+	}
 	return incident
 }
 
@@ -171,7 +175,9 @@ func getHttpClient(timeout int) *http.Client {
 		}
 		proxy = http.ProxyURL(u)
 	}
-	logger.Warning("final proxy", proxy, "\r\n")
+	if logger != nil {
+		logger.Warning("final proxy", proxy, "\r\n")
+	}
 	client := &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
@@ -269,7 +275,6 @@ func configureLogger(logFilePath string) *OpsgenieFileLogger {
 
 func printConfigToLog() {
 	if logger != nil {
-
 		logger.Debug("Config:\r\n")
 		for k, v := range configParameters {
 			if strings.Contains(k, "password") {
@@ -278,12 +283,13 @@ func printConfigToLog() {
 				logger.Debug(k, "=", v, "\r\n")
 			}
 		}
-
 	}
 }
 
 func readConfigFile(file io.Reader, configPathPtr *string) {
-	logger.Info("Reading config file located at:", *configPathPtr, "\r\n")
+	if logger != nil {
+		logger.Info("Reading config file located at:", *configPathPtr, "\r\n")
+	}
 	scanner := bufio.NewScanner(file)
 
 	for scanner.Scan() {
@@ -295,7 +301,9 @@ func readConfigFile(file io.Reader, configPathPtr *string) {
 			l[0] = strings.TrimSpace(l[0])
 			l[1] = strings.TrimSpace(l[1])
 			configParameters[l[0]] = l[1]
-			logger.Info("key:", l[0], "value:", l[1])
+			if logger != nil {
+				logger.Info("key:", l[0], "value:", l[1])
+			}
 			if l[0] == "timeout" {
 				TOTAL_TIME, _ = strconv.Atoi(l[1])
 			}
@@ -344,7 +352,9 @@ type Configuration struct {
 
 func check(err error) {
 	if err != nil {
+		if logger != nil {
+			logger.Error(err, "\r\n")
+		}
 		panic(err)
-		logger.Error(err, "\r\n")
 	}
 }
