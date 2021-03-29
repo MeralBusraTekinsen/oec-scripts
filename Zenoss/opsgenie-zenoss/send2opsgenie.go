@@ -51,7 +51,9 @@ func main() {
 	}
 	logPrefix = "[EventId: " + parameters["evid"].(string) + "]"
 	if parameters["test"] == true {
-		logger.Warning("Sending test alert to OpsGenie.")
+		if logger != nil {
+			logger.Warning("Sending test alert to OpsGenie.")
+		}
 	} else {
 		if strings.ToLower(eventState) == "close" {
 			if logger != nil {

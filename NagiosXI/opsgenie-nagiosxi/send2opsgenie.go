@@ -245,7 +245,9 @@ func http_post() {
 		}
 
 		strRequest, _ := json.Marshal(request)
-		logger.Debug("strReq: " + string(strRequest))
+		if logger != nil {
+			logger.Debug("strReq: " + string(strRequest))
+		}
 
 		resp, error := client.Do(request)
 		if error == nil {

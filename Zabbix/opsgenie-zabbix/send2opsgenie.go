@@ -185,7 +185,9 @@ func getHttpClient(timeout int) *http.Client {
 		}
 		proxy = http.ProxyURL(u)
 	}
-	logger.Warning("final proxy", proxy)
+	if logger != nil {
+		logger.Warning("final proxy", proxy)
+	}
 	client := &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
@@ -212,7 +214,9 @@ func http_post() {
 	var logPrefix = "[TriggerId: " + parameters["triggerId"] + ", HostName: " + parameters["hostName"] + "]"
 
 	apiUrl := configParameters["opsgenie.api.url"] + "/v1/json/zabbix"
-	logger.Error("apiUrl: " + apiUrl)
+	if logger != nil {
+		logger.Error("apiUrl: " + apiUrl)
+	}
 	target := "OpsGenie"
 
 	if logger != nil {
